@@ -1,0 +1,80 @@
+\documentclass[12pt,a4paper]{report}
+%\usepackage{showframe}
+%\usepackage{mathptmx}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage[12pt]{moresize}
+\usepackage{hyperref}
+\usepackage{textcomp}
+\usepackage{color}
+\usepackage{listings}
+\usepackage{tocbibind}
+\usepackage{color}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage[most]{tcolorbox}
+\usepackage{amssymb}
+\usepackage{pifont}
+\usepackage{ulem}
+\usepackage{cancel}
+\usepackage{tikz}
+\usepackage{fourier-orns}
+\usepackage{longtable}
+\usepackage{lscape}
+\usepackage{ulem}
+\usepackage{array, makecell} 
+\usepackage{bbm}
+\usepackage{etoolbox}
+\usepackage{algorithm,algorithmic}
+\usepackage{caption}
+\usepackage{bm}
+
+\allowdisplaybreaks
+
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+\newcommand{\Hrule}{\rule{\linewidth}{0.3mm}}
+
+%\makeatletter% since there's an at-sign (@) in the command name
+%\renewcommand{\@maketitle}{%
+%	\parindent=0pt% don't indent paragraphs in the title block
+%	\centering
+%	{\Large \bfseries\textsc{\@title}}
+%	\HRule\par%
+%	\textit{\@author \hfill \@date}
+%	\par
+%}
+
+\newlength\myindent
+\setlength\myindent{2em}
+\newcommand\bindent{%
+	\begingroup
+	\setlength{\itemindent}{\myindent}
+	\addtolength{\algorithmicindent}{\myindent}
+}
+\newcommand\eindent{\endgroup}
+
+\makeatother% resets the meaning of the at-sign (@)\today
+
+\title{Summary: Stochastic Systems - Estimation, Identification, and Adaptive Control}
+%\author{}\today
+\date{}
+
+\begin{document}
+	\maketitle% prints the title block
+	\vspace{10pt}
+	
+\setcounter{chapter}{3}
+\input{chapter_04}
+
+\end{document}
+
+
+
+
+
+
+
+
+
