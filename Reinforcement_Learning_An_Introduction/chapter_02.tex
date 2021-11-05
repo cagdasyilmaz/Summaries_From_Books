@@ -1,0 +1,294 @@
+\chapter{Multi-armed Bandits}
+\par The most important feature distinguishing R.L. from other types of learning is that it uses training information that \textit{\textcolor{red}{evaluates}} the actions taken rather than \textit{\textcolor{red}{instructs}} by giving correct actions.  In their pure forms, two kinds of feedback are quite distinct: \uline{evaluative feedback} depends entirely on the action taken, whereas \uline{instructive feedback} is independent of the action taken. \newline 
+\par The evaluative aspect of R.L. in a simplified setting, one that does not involve learning to act in more than one situation. (\textit{\textcolor{red}{nonassociativity}}) The particular nonassociative, evaluative feedback problem that we explore is a simple
+version of the \uline{$k$-armed bandit problem}.
+\section{A $k$-armed Bandit Problem}
+\par The original form of the \textit{$k$-armed bandit problem}, so named by analogy to a slot machine, or “\textit{one-armed bandit},” except that it has $k$ levers instead of one. Each action selection is like a play of one of the slot machine's levers, and the rewards are the payoffs for hitting the jackpot. Through repeated action selections we are to maximize our winnings by concentrating our actions on the best levers. \newline 
+\par In classical $k$-armed bandit problem, each of the $k$ actions has an expected or mean reward given that that action is selected; let us call this the \textit{\textcolor{red}{value}} of that action. \uline{Action selected on time step $t$ as $A_{t}$}, and \uline{the corresponding reward as $R_{t}$}. The value then of an arbitrary action $a$, denoted \uline{$q_{*}(a)$, is the expected reward given that $a$ is selected}:
+\begin{equation}
+	\label{eqn:expected_reward}
+	\nonumber
+	q_{*}(a) \doteq \mathbb{E}[R_{t}\,|\,A_{t}=a]	
+\end{equation} 
+\noindent If we knew the value of each action, then it would be trivial to solve the $k$-armed bandit problem: we would always select the action with highest value. We assume that we do not know the action values with certainty, although we may have estimates. We denote \uline{the estimated value of action $a$ at time step $t$ as, $Q_{t}(a)$}. We would like $Q_{t}(a)$ to be close to $q_{*}(a)$. \newline
+\par If we maintain estimates of the action values, then at any time step there is at least one action whose estimated value is greatest. We call these the \textit{\textcolor{red}{greedy}} actions. When we select one of these actions, we say that we are \textit{\textcolor{red}{exploiting}} our current knowledge of the values of the actions. If instead we select one of the nongreedy actions, then we say we are \textit{\textcolor{red}{exploring}}, because this enables us to improve our estimate of the nongreedy action's value. The uncertainty is
+such that at least one of these other actions probably is actually better than the greedy action, but we don’t know which one. Reward is lower in the short run, during exploration, but higher in the long run because after we have discovered the better actions, we can exploit them many times. In any specific case, whether it is better to explore or exploit depends in a complex way on the precise values of the estimates, uncertainties, and the number of remaining steps.
+\section{Action-value Methods}
+\uline{\textit{Action-value methods}} are collectively called for using the estimates to make action selection decisions and for estimating the values of actions. \textbf{\uline{The true value of an action is the mean reward when that action is selected.}} One natural way to estimate this is by averaging the rewards actually received:
+\begin{equation}
+	\label{eqn:estimation_of_rewards}
+	Q_{t}(a) \doteq \frac{\text{sum of rewards when $a$ taken prior $t$}}{\text{number of times $a$ taken prior to $t$}} = \frac{\sum_{i = 1}^{t-1}R_i \cdot \mathbbm{1}_{A_{i}=a}}{\sum_{i = 1}^{t-1} \mathbbm{1}_{A_{i}=a}}
+\end{equation} 
+\noindent \uline{where $\mathbbm{1}_{predicate}$ denotes the random variable that is $1$ if \textit{predicate} is true and $0$ if it is not.} If the denominator is zero, then we instead define $Q_{t}(a)$ as some default value, such as $0$. As the denominator goes to infinity, by the law of large numbers, $Q_{t}(a)$ converges to $q_{*}(a)$. (\textcolor{red}{\textit{sample-average}}) If there is more than one greedy action, then a selection is made among actions in some arbitrary way, perhaps randomly. We write this greedy action selection method as
+\begin{equation}
+	\label{eqn:greedy_action_selection}
+	A_{t} \doteq \operatorname*{argmax}_{a} Q_{t}(a)
+\end{equation} 
+\noindent \uline{where $\operatorname*{argmax}_{a}$ denotes the action a for which the expression that follows is maximized.} A simple alternative is to behave greedily most of the time, but every once in a while, \uline{say with small probability} $\varepsilon$ , instead select randomly from among all the actions with equal probability, independently of the action-value estimates. Using this near-greedy action selection rule is called as
+\textit{\textcolor{red}{$\varepsilon$-greedy}} methods. \newline
+\par An advantage of these methods is that, in the limit as the number of steps increases, every action will be sampled an infinite numer of times, thus ensuring that all the $Q_{t}(a)$ converge to $q_{*}(a)$.  The probability of selecting the optimal action converges to greater than $1-\varepsilon$, that is, to near certainty. These are
+just asymptotic guarantees, however, and say little about the practical effectiveness of the methods.
+\section{The 10-armed Testbed}
+Read the pages between 28 and 30. \newline
+\par \noindent For any learning method, we can measure its performance and behavior as it improves with experience over 1000 time steps when applied to one of the bandit problems. This makes up one \textcolor{red}{\textit{run}}. Repeating this for 2000 independent runs, each with a different bandit problem, we obtained measures of the learning algorithm’s average behavior. \newline 
+\par The greedy method improved slightly faster than the other methods at the very beginning, but then leveled off at a lower level. The greedy method performed significantly worse in the long run because it often got stuck performing suboptimal actions. \uline{The $\varepsilon-greedy$ methods eventually performed better because they continued to explore and to improve their chances of recognizing the optimal action.  It is also possible to reduce $\varepsilon$ over time to try to get the best of both high and low values.} \newline 
+\par \uline{\textbf{The advantage of $\varepsilon-greedy$ over greedy methods depends on the task.}} For example, suppose the reward variance had been larger, say $10$ instead of $1$. \uline{With noisier rewards it takes more exploration to find the optimal action, and $\varepsilon-greedy$ methods should fare even better relative to the greedy method.} On the other hand, \uline{if the reward variances were zero, then the greedy method would know the true value of each action after trying it once. In this case the greedy method might actually perform best because it would soon find the optimal action and then never explore.} But even in the deterministic case there is a large advantage to exploring if we weaken some of the other assumptions. For example, suppose the bandit task were nonstationary, that is, the true values of the actions changed over time. In this case exploration is needed even in the deterministic case to make sure one of the nongreedy actions has not changed to become better than the greedy one.  \textbf{Nonstationarity is the case most commonly encountered in reinforcement learning. R.L. requires a balance between exploration and exploitation.}
+\section{Incremental Implementation}
+The question of \uline{how sample averages can be computed in a computationally efficient manner, in particular, with constant memory and constant per-time-step computation} is now turned. Let \uline{$R_{i}$ now denote the reward received after the $i$th selection of this action}, and let \uline{$Q_{n}$ denote the estimate of its action value after it has been selected $n-1$ times}, which we can now write simply as
+\begin{equation}
+	\label{eqn:estimate_of_single_action}
+	\nonumber
+	Q_{n} \doteq \frac{R_{1} + R_{2} + \dots + R_{n-1}}{n-1}
+\end{equation} 
+\noindent However, if this is done, then the memory and computational requirements would grow over time as more rewards are seen. Each additional reward would require additional memory to store it and additional computation to compute the sum in the numerator.  It is easy to devise incremental formulas for updating averages with small, constant computation required to process each new reward. Given $Q_{n}$ and the $n$th reward, $R_{n}$, the new average of all n rewards can be computed by
+\begin{align}
+	\label{eqn:average_of_all_n_rewards}
+	Q_{n+1}&= \frac{1}{n}\sum_{i=1}^{n}R_{i} \nonumber \\
+	&= \frac{1}{n}\bigg(R_{n} + \sum_{i=1}^{n-1}R_{i}\bigg) \nonumber  \\
+	&= \frac{1}{n}\bigg(R_{n} + (n-1)\frac{1}{n-1} \sum_{i=1}^{n-1}R_{i}\bigg) \nonumber \\
+	&= \frac{1}{n}\bigg(R_{n} + (n-1)Q_{n}\bigg) \nonumber \\
+	&= \frac{1}{n}\bigg(R_{n} + nQ_{n} - Q_{n} \bigg) \nonumber \\
+	&= Q_{n} + \frac{1}{n}\bigg[R_{n} - Q_{n} \bigg], 
+\end{align}
+\noindent which holds even for $n = 1$, obtaining $Q_{2} = R_{1}$ for arbitrary $Q_{1}$. This implementation requires memory only for $Q_{n}$ and $n$, and only the small computation \ref{eqn:average_of_all_n_rewards} for each new reward. This update rule \ref{eqn:average_of_all_n_rewards} can be written in the general forms as follows
+\begin{equation}
+	\label{eqn:average_of_all_n_rewards_general_form}
+	\text{\textit{NewEstimate}} \leftarrow \text{\textit{OldEstimate}} + \text{\textit{StepSize}}\big[\text{\textit{Target}}-\text{\textit{OldEstimate}}\big].
+\end{equation}
+\noindent \uline{The expression $\big[\text{\textit{Target}}-\text{\textit{OldEstimate}}\big]$ is an \textit{error} in the estimate.} It is reduced by taking a step forward to "Target". The target presumed to indicate a desirable direction in which to move, though it may be noisy. Note that the step-size parameter \text{\textit{StepSize}} used in the incremental method \ref{eqn:average_of_all_n_rewards} changes from time step to time step. \newline
+\par Pseudocode for a complete bandit algorithm using incrementally computed sample averages and $\varepsilon-greedy$ action selection is shown in the box below. The function $bandit(a)$ is assumed to take an action and return a corresponding reward.
+\begin{algorithm}[H]
+	\caption{A simple bandit algorithm}
+	\label{alg:a_simple_bandit_algorithm}
+	\begin{algorithmic}
+		\STATE \textbf{Initialize}, for $a=1$ to $k$: \\
+		\bindent
+		\STATE{$Q(a) \leftarrow 0$}
+		\STATE{$N(a) \leftarrow 0$} 
+		\eindent
+		\STATE\textbf{Loop forever}: 
+		\bindent
+		\STATE{$A \leftarrow \begin{cases}
+				& \operatorname*{argmax}_{a} Q_{t}(a)\;\;\;\;\text{with probability}\;1-\varepsilon\;\;\;\text{(breaking ties randomly)}\\
+				& \text{a random action}\;\text{with probability}\;\varepsilon
+			\end{cases} $} 
+		\STATE{$R \leftarrow bandit(A)$}
+		\STATE{$N(A) \leftarrow N(A) + 1$}
+		\STATE{$Q(A) \leftarrow Q(A) + \frac{1}{N(A)}\big[R-Q(A)\big]$}
+		\eindent
+	\end{algorithmic}
+\end{algorithm}
+\section{Tracking a Nonstationary Problem}
+R.L. problems that are effectively nonstationary. In such cases it makes sense to give more weight to recent rewards than to long-past rewards. \uline{One of the most popular ways of doing this is to use a constant step-size parameter.} The incremental update rule \ref{eqn:average_of_all_n_rewards} for updating an average $Q_{n}$ of the $n-1$ past rewards is modified to be
+\begin{equation}
+	\label{eqn:the_incremental_update_rule_with_constant_stepsize}
+	Q_{n+1} \doteq Q_{n} + \alpha\big[R_{n} - Q_{n}\big],
+\end{equation}
+\noindent where the step-size parameter $\alpha \in (0, 1] $ is constant. This results in $Q_{n+1}$ being a weighted average of past rewards and the initial estimate $Q_{1}$:
+\begin{align}
+	\label{eqn:average_of_all_n_rewards_with_constant_stepsize}
+	Q_{n+1} &= Q_{n} + \alpha\big[R_{n} - Q_{n}\big] \nonumber \\
+	&= \alpha R_{n} + (1-\alpha)Q_{n} \nonumber \\
+	&= \alpha R_{n} + (1-\alpha)\big[\alpha R_{n-1} + (1-\alpha)Q_{n-1}\big] \nonumber \\
+	&= \alpha R_{n} + (1-\alpha)\alpha R_{n-1} + (1-\alpha)^{2}Q_{n-1} \nonumber \\
+	&= \alpha R_{n} + (1-\alpha)\alpha R_{n-1} + (1-\alpha)^{2}\alpha R_{n-2} + \nonumber \\
+	&\;\;\;\;\dots + (1-\alpha)^{n-1}\alpha R_{1} + (1-\alpha)^{n}Q_{1} \nonumber \\
+	&= (1-\alpha)^{n}Q_{1} + \sum_{i=1}^{n}\alpha(1-\alpha)^{n-i}R_{i}\text{.}	
+\end{align}
+\noindent We call this weighted average because the sum that of the the weights is $(1-\alpha)^{n} + \sum_{i=1}^{n}\alpha(1-\alpha)^{n-i} = 1$. The quantity $1-\alpha$ is less than $1$, and thus the weight given to $R_{i}$ decreases as the number of intervening rewards increases. In fact, the weight decays exponentially according to the exponent on $1-\alpha$. (If $1-\alpha = 0$, then all the weight goes on the very last reward, $R_{n}$, because of the convention that $0^0 = 1$.) (\textcolor{red}{\textit{exponential recency-weighted average}}) \newline
+\par \uline{Sometimes it is convenient to vary the step-size parameter from step to step.} Let $\alpha_{n}(a)$ denote the step-size parameter used to process the reward received after the $n$th selection of action $a$. But of course convergence is not guaranteed for all choices of the sequence ${\alpha_{n}(a)}$. A well-known result in stochastic approximation theory gives us the conditions required to assure convergence with probability 1:
+\begin{equation}
+	\label{eqn:conditions_required_to_assure_converge}
+	\sum_{n=1}^{\infty}\alpha_{n}(a) = \infty \;\;\;\;\;\text{and}\;\;\;\;\;\sum_{n=1}^{\infty}\alpha^{2}_{n}(a) < \infty
+\end{equation}
+\noindent \uline{The first condition is required to guarantee that the steps are large enough to eventually overcome any initial conditions or random fluctuations.} \uline{The second condition guarantees that eventually the steps become small enough to assure convergence.} \newline
+\noindent Note that both convergence conditions are met for the sample-average case, $\alpha_{n}(a)=\frac{1}{n}$, but not for the case of constant step-size parameter, $\alpha_{n}(a)=a$. \uline{In the latter case, the second condition is not met, indicating that the estimates never completely converge but continue to vary in response to the most recently received rewards. This is actually desirable in a nonstationary environment, and problems that are effectively nonstationary are the most common in reinforcement learning.} In addition, sequences of step-size parameters that meet the conditions \ref{eqn:conditions_required_to_assure_converge} often converge very slowly or need considerable tuning in order to obtain a satisfactory convergence rate. \newline 
+
+\noindent\textcolor{red}{\textit{Exercise 2.4}}  Suppose the step sizes $\alpha_{n}$ are not constant. According to the updating rule \ref{eqn:the_incremental_update_rule_with_constant_stepsize}, the general case on each prior reward can be written as
+\begin{align}
+	\label{eqn:average_of_all_n_rewards_with_nonconstant_stepsize}
+	Q_{n+1} &= Q_{n} + \alpha_{n}\big[R_{n} - Q_{n}\big] \nonumber \\
+	&= \alpha_{n} R_{n} + (1-\alpha_{n})Q_{n} \nonumber \\
+	&= \alpha_{n} R_{n} + (1-\alpha_{n})\big[\alpha_{n-1} R_{n-1} + (1-\alpha_{n-1})Q_{n-1}\big] \nonumber \\
+	&= \alpha_{n} R_{n} + (1-\alpha_{n})\alpha_{n-1} R_{n-1} + (1-\alpha_{n})(1-\alpha_{n-1})Q_{n-1} \nonumber \\
+	&= \alpha_{n} R_{n} + (1-\alpha_{n})\alpha_{n-1} R_{n-1} + (1-\alpha_{n})(1-\alpha_{n-1})\alpha_{n-2} R_{n-2} + \nonumber \\
+	&\;\;\;\;\dots + (1-\alpha_{n})(1-\alpha_{n-1})\dots\alpha_{1} R_{1} + (1-\alpha_{n})(1-\alpha_{n-1})\dots(1-\alpha_{1}) Q_{1} \nonumber \\
+	&= \bigg(\prod_{i=1}^{n}(1-\alpha_{i})\bigg)Q_{1} + \bigg( \sum_{i=1}^{n-1}\bigg(\prod_{j=i+1}^{n}(1-\alpha_{j})\bigg)\alpha_{i}R_{i}\bigg) + \alpha_{n}R_{n} \text{.} \nonumber	
+\end{align}
+\section{Optimistic Initial Values}
+For the sample-average methods, the bias disappears once all actions have been selected at least once, but for methods with constant $\alpha$, the bias is permanent, though decreasing over time as given by \ref{eqn:average_of_all_n_rewards_with_constant_stepsize}. \uline{In practice, this kind of bias is usually not a problem and can sometimes be very helpful.} The downside is that the initial estimates become, in effect, a set of parameters that must be picked by the user, if
+only to set them all to zero. The upside is that they provide an easy way to supply some prior knowledge about what level of rewards can be expected. \newline
+\par \uline{Initial action values can also be used as a simple way to encourage exploration.} Employing an optimism encourages action-value methods to explore. \uline{Whichever actions are initially selected, the reward is less than the starting estimates; the learner switches to
+other actions, being 'disappointed' with the rewards it is receiving. The result is that all actions are tried several times before the value estimates converge. The system does a fair amount of exploration even if greedy actions are selected all the time.} Initially, the optimistic method performs worse because it explores more, but eventually it performs better because its exploration decreases with time.(\textcolor{red}{\textit{optimistic initial values}}) \uline{We regard it as a simple trick that can be quite effective on stationary problems, but it is far from being a generally useful approach to encouraging exploration.}  Keep in mind that, \textbf{any method that focuses on the initial conditions in any special way is unlikely to help with the general nonstationary case.} \newline 
+
+\noindent \textcolor{red}{\textit{Exercise 2.7} (Unbiased Constant-Step-Size Trick)} Sample averages do not produce the initial bias that constant step sizes do. However, sample averages are not a completely satisfactory solution because they may perform poorly on nonstationary problems. It is possible to avoid the bias of constant step sizes while retaining their advantages on nonstationary problems? One way is to use a step size of
+\begin{equation}
+	\label{eqn:nonconstant_stepsize}
+	\beta_{n} \doteq \frac{\alpha}{\bar{o}_{n}},
+\end{equation}
+\noindent to process the $n$th reward for a particular action, where $\alpha > 0$ is a conventional constant step size, and $\bar{o}_{n}$ is a trace of one that starts at 0:
+\begin{equation}
+	\label{eqn:nonconstant_stepsize_trace}
+	{\bar{o}_{n}} \doteq {\bar{o}_{n-1}} + \alpha(1 - {\bar{o}_{n-1}}),\;\;\;\text{for}\,\,n\geq0,\;\;\;\text{with} \bar{o}_{0}\doteq 0.
+\end{equation}
+Carrying out an analysis like that in \ref{eqn:average_of_all_n_rewards_with_constant_stepsize} 
+\begin{align}
+	\label{eqn:nonconstant_stepsize_trace_II}
+	\bar{o}_{n} &= \bar{o}_{n-1} + \alpha(1 - \bar{o}_{n-1}) \nonumber \\
+	&= \alpha + (1-\alpha){\bar{o}_{n-1}} \nonumber \\
+	&= \alpha + (1-\alpha)({\bar{o}_{n-2}} + \alpha(1-{\bar{o}_{n-2}})) \nonumber \\
+	&= \alpha + (1-\alpha)(\alpha + (1-\alpha){\bar{o}_{n-2}}) \nonumber \\
+	&= \alpha + (1-\alpha)\alpha +  (1-\alpha)^{2}{\bar{o}_{n-2}} \nonumber \\
+	&= \alpha + (1-\alpha)\alpha +  (1-\alpha)^{2}\alpha + (1-\alpha)^{3}{\bar{o}_{n-3}} \nonumber \\
+	&= \bigg(\sum_{i=1}^{n}(1-\alpha)^{n-i}\alpha\bigg) + \underbrace{(1-\alpha)^{n}{\bar{o}_{0}}}_{\let\scriptstyle\textstyle\substack{=0,\,\text{since}\,\bar{o}_{0}=0}} \nonumber \\
+	&= \sum_{i=1}^{n}(1-\alpha)^{n-i}\alpha, \nonumber
+\end{align}
+\noindent $\beta_{n}$, the step size for non-stationary problems becomes,
+\begin{equation}
+	\label{eqn:nonconstant_stepsize_II}
+	\beta_{n} \doteq \frac{\alpha}{\sum_{i=1}^{n}(1-\alpha)^{n-i}\alpha} = \frac{1}{\sum_{i=1}^{n}(1-\alpha)^{n-i}}. \nonumber
+\end{equation}
+\section{Upper-Confidence-Bound Action Selection}
+\par Exploration is needed because there is always uncertainty about the accuracy of the action-value estimates. \uline{The greedy actions are those that look best at present, but some of the other actions may actually be better.} It would be better to select among the non-greedy
+actions according to their potential for actually being optimal, taking into account both how close their estimates are to being maximal and the uncertainties in those estimates. One effective way of doing this is to select actions according to
+\begin{equation}
+	\label{eqn:upper_confidence_bound_equation}
+	A_{t} \doteq \operatorname*{argmax}_{a} \bigg[Q_{t}(a) + c\sqrt{\frac{\ln t}{N_{t}(a)}}\,\bigg],
+\end{equation}
+\noindent where \uline{$\ln t$ denotes the natural logarithm of $t$}, \uline{$N_{t}(a)$ denotes the number of times that action $a$ has
+been selected prior to time $t$}, and \uline{the number $c>0$ controls
+the degree of exploration. If $N_{t}(a) = 0$, then $a$ is considered to be a maximizing action.} \newline
+\par \uline{\textcolor{red}{\textit{Upper confidence bound (UCB)}} action selection with its square-root term is a measure of the uncertainty or variance in the estimate of $a$’s value.} The quantity being max'ed over is thus a sort of upper bound on the possible true value of action $a$, with \uline{$c$ determining the confidence level}. \uline{Each time $a$ is selected the uncertainty is presumably reduced}:
+\textit{$N_{t}(a)$ increments, and, as it appears in the denominator, the uncertainty term decreases}. On the other hand, \textit{each time an action other than $a$ is selected, $t$ increases but $N_{t}(a)$ does not; because $t$ appears in the numerator, the uncertainty estimate increases}. \uline{The use of the natural logarithm means that the increases get smaller over time, but are unbounded; all actions will eventually be selected}, \uline{but actions with lower value estimates, or that have already been selected frequently, will be selected with decreasing frequency over time.} \textbf{In some more advanced settings (e.g. nonstationary problems, large state spaces) the idea of UCB action selection is usually not practical.}
+\section{Gradient Bandit Algorithms}
+\par A numerical \textit{preference} for each action $a$ is typically denoted as $H_{a}$. \uline{The larger the preference, the more often that action is taken, but the preference has no interpretation in terms of reward.} Only the relative preference of one action over another is important; if we add 1000 to all the action preferences there is no effect on the action probabilities, which are determined according to a \textcolor{red}{\textit{soft-max distribution}} (i.e. \textit{Gibbs} or \textit{Boltzmann distribution}) as follows:
+\begin{equation}
+	\label{eqn:soft_max_distribution}
+	\text{Pr}\{A_{t} = a\} \doteq \frac{e^{H_{t}(a)}}{\sum_{b=1}^{k}e^{H_{t}(b)}} \doteq \pi_{t}(a),
+\end{equation} 
+\noindent where \uline{$\pi_{t}(a)$, for the probability of taking action $a$ at time $t$}. Initially all action preferences are the same (e.g., $H_{1}(a)= 0$, for all $a$) so that all actions have an equal probability of being selected. \newline 
+
+\noindent \textcolor{red}{\textit{Exercise 2.9}} Show that in the case of two actions, the soft-max distribution is the same as that given by the logistic, or sigmoid, function often used in statistics and artificial neural networks. \newline
+\par In fact the \textit{sigmoid function} is a special case of the \textit{soft-max function} for a classifier with only two input classes. A sigmoid function is the logistic function defined by the formula 
+\begin{equation}
+	\label{eqn:sigmoid_function}
+	\nonumber
+	S(x) \doteq \frac{1}{1+e^{-x}} = \frac{e^{x}}{e^{x}+1}.
+\end{equation} 
+\noindent{Using} above function definition we would have: 
+\begin{equation}
+	\label{eqn:sigmoid_function_action_probability}
+	\nonumber
+	\text{Pr}\{A_{t} = a\} = \frac{e^{H_{t}(a)}}{e^{H_{t}(a)}+1},
+\end{equation} 
+\begin{equation}
+	\label{eqn:sigmoid_function_action_probability_II}
+	\nonumber
+	\text{Pr}\{A_{t} = b\} = 1 - \text{Pr}\{A_{t} = a\} = \frac{1}{e^{H_{t}(a)}+1}.
+\end{equation} 
+\noindent{The} soft-max distribution for the case of two ($k=2$) is formulated as follows: 
+\begin{equation}
+	\label{eqn:softmax_function_action_probability}
+	\nonumber
+	\text{Pr}\{A_{t} = a\} = \frac{e^{H_{t}(a)}}{e^{H_{t}(a)}+e^{H_{t}(b)}},
+\end{equation} 
+\begin{equation}
+	\label{eqn:softmax_function_action_probability_II}
+	\nonumber
+	\text{Pr}\{A_{t} = b\} = \frac{e^{H_{t}(b)}}{e^{H_{t}(a)}+e^{H_{t}(a)}},
+\end{equation} 
+\noindent{Addition} or summation from all action preferences does not affect the probabilities for the action selection. Therefore we can rewrite the preference values in the following form: 
+\begin{align}
+	\label{eqn:rewrite_preference_values_I}
+	H_{t}(b)\text{\{}= 0\text{\}} &\leftarrow H_{t}(b) - H_{t}(b), \nonumber \\
+	H_{t}(a) &\leftarrow H_{t}(a) - H_{t}(b), 	\nonumber
+\end{align} 
+\noindent{and} we get
+\begin{align}
+	%\label{eqn:rewrite_preference_values_II}
+	\text{Pr}\{A_{t} = a\} &= \frac{e^{H_{t}(a)}}{e^{H_{t}(a)}+e^{0}} = \frac{e^{H_{t}(a)}}{e^{H_{t}(a)}+1}, \nonumber \\
+	\text{Pr}\{A_{t} = b\} &= \frac{e^{0}}{e^{H_{t}(a)}+e^{0}} = \frac{1}{e^{H_{t}(a)}+1}. \nonumber 
+\end{align} 
+\par There is a natural learning algorithm for the setting \ref{eqn:soft_max_distribution} based on the idea of stochastic gradient ascent. On each step, after selecting action $A_{t}$ and receiving the reward $R_{t}$ , the action preferences are updated by:
+\begin{equation}
+\begin{aligned}
+	\label{eqn:the_action_preferences_update}
+	H_{t+1}(A_{t}) &\doteq H_{t}(A_{t}) + \alpha(R_{t}-\bar{R}_{t})(1-\pi_{t}(A_{t})),  && \text{and}   \\
+	H_{t+1}(a) &\doteq H_{t}(a) - \alpha(R_{t}-\bar{R}_{t})\pi_{t}(a),  && \text{for all } a \neq A_{t},   \\
+\end{aligned}
+\end{equation}
+\noindent{where} $\alpha > 0$ is a step-size parameter, and $\bar{R}_{t} \in \mathbb{R}$ is the average of all the rewards up through and including time $t$, which can be computed incrementally. \uline{The $\bar{R}_{t}$ term serves as a baseline with which the reward is compared. If the reward is higher than the baseline, then the probability of taking $A_{t}$ in the future is increased, and if the reward is below baseline, then probability is decreased. The non-selected actions move in the opposite direction.} \textbf{If the baseline were omitted (that is, if $\bar{R}_{t}$ was taken to be constant zero in \ref{eqn:the_action_preferences_update}), then performance would be significantly degraded.} (\textit{Look Figure 2.5})
+\subsection{The Bandit Gradient Algorithm as Stochastic Gradient Ascent}
+\par In exact \textcolor{red}{\textit{gradient ascent}}, each action preference $H_{t}(a)$ would be incremented proportional to the increment's effect on performance:
+\begin{equation}
+	\label{eqn:preferences_update_with_gradient_ascent}
+	H_{t+1}(a) \doteq H_{t}(a) + \alpha\frac{\partial \mathbb{E}[R_{t}]}{\partial H_{t}(a)},
+\end{equation}
+\noindent{where} the measure of performance here is the expected reward:
+\begin{equation}
+	\label{eqn:measure_of_the_expected_reward}
+	\nonumber
+	\mathbb{E}[R_{t}] = \sum_{x}^{}\pi_{t}(x)q_{*}(x),
+\end{equation}
+\noindent\uline{{and} the measure of the increment's effect is the partial derivative of this performance measure with respect to the action preference.} By assumption we do not know the $q_{*}(x)$, but in fact the updates of our algorithm \ref{eqn:the_action_preferences_update} are equal to \ref{eqn:preferences_update_with_gradient_ascent} in expected value, making the algorithm an instance of \textcolor{red}{\textit{stochastic gradient ascent}}. The exact performance gradient can be written as:
+\begin{align}
+	\frac{\partial \mathbb{E}[R_{t}]}{\partial H_{t}(a)} &= \frac{\partial }{\partial H_{t}(a)} \bigg[ \sum_{x}^{}\pi_{t}(x)q_{*}(x) \bigg] \nonumber \\
+	&= \sum_{x}^{}q_{*}(x) \frac{\partial \pi_{t}(x)}{\partial H_{t}(a)} \nonumber \\
+	&= \sum_{x}^{}\big(q_{*}(x) -B_{t}\big)\frac{\partial \pi_{t}(x)}{\partial H_{t}(a)}, \nonumber\nonumber
+\end{align} 
+\noindent{where} \uline{$B_{t}$, called the \textcolor{red}{\textit{baseline}}}, can be any scalar that does not depend on $x$.  We can include a baseline here without changing the equality because the gradient sums to zero over all the actions, ${\displaystyle \sum_{x}^{}\frac{\partial \pi_{t}(x)}{\partial H_{t}(a)}}$ - as $H_{a}$ is changed, some action's probabilities go up and some go down, but \textbf{the sum of the changes must be zero, because the sum of the probabilities is always one.} Next we multiply each term of the sum by ${\displaystyle \frac{\pi_{t}(x)}{\pi_{t}(x)}}$:
+\begin{equation}
+	\nonumber
+	\frac{\partial \mathbb{E}[R_{t}]}{\partial H_{t}(a)} = \sum_{x}^{}\pi_{t}(x)\big(q_{*}(x) -B_{t}\big)\frac{\partial \pi_{t}(x)}{\partial H_{t}(a)}\frac{1}{\pi_{t}(x)}.
+\end{equation}
+\noindent{The} equation is now in the form of an expectation, summing over all possible values $x$ of the random variable $A_{t}$ , then multiplying by the probability of taking those values. Thus:
+\begin{align}
+	&= \mathbb{E} \bigg[ \big(q_{*}(A_{t}) - B_{t}\big) \frac{\partial \pi_{t}(A_{t})}{\partial H_{t}(a)}\frac{1}{\pi_{t}(A_{t})}\bigg], \nonumber \\
+	&= \mathbb{E} \bigg[ \big(R_{t} - \bar{R}_{t}\big) \frac{\partial \pi_{t}(A_{t})}{\partial H_{t}(a)}\frac{1}{\pi_{t}(A_{t})}\bigg], \nonumber 
+\end{align} 
+\noindent{where} here we have chosen the baseline $B_{t} = \bar{R}_{t}$ and substituted $R_{t}$ for $q_{*}(A_{t})$, which is permitted because $\mathbb{E}[R_{t}|A_{t}]=q_{*}(A_{t})$. Shortly, ${\displaystyle \frac{\partial \pi_{t}(x)}{\partial H_{t}(a)} = \pi_{t}(x)\big(\mathbbm{1}_{a=x}-\pi_{t}(a)\big)}$ can be established, where $\mathbbm{1}_{a=x}$ is defined to be $1$ if $a = x$, else $0$. Keeping in mind that, we now have
+\begin{align}
+	&= \mathbb{E} \bigg[ \big(R_{t} - \bar{R}_{t}\big) \cancel{\pi_{t}(A_{t})} \big(\mathbbm{1}_{a=x}-\pi_{t}(a)\big) \cancel{\frac{1}{\pi_{t}(A_{t})}}\bigg], \nonumber \\
+	&= \mathbb{E} \big[ \big(R_{t} - \bar{R}_{t}\big) \big(\mathbbm{1}_{a=x}-\pi_{t}(a)\big)\big]. \nonumber 
+\end{align} 
+\noindent{Substituting} a sample of the expectation above for the performance gradient in \ref{eqn:preferences_update_with_gradient_ascent} yields:
+\begin{equation}
+	\nonumber
+	H_{t+1}(a) \doteq H_{t}(a) + \alpha(R_{t}-\bar{R}_{t})\big(\mathbbm{1}_{a=x}-\pi_{t}(a)\big),\,\,\, \text{for all } a.\text{ (Look also \ref{eqn:the_action_preferences_update})}
+\end{equation}
+The derivative term, ${\displaystyle \frac{\partial \pi_{t}(x)}{\partial H_{t}(a)}}$ can be proved in term of $\pi_{t}(x)\big(\mathbbm{1}_{a=x}-\pi_{t}(a)\big)$ by recalling the standard quotient rule for derivatives:
+\begin{equation}
+	\nonumber
+	\frac{\partial}{\partial x} \bigg[ \frac{f(x)}{g(x)} \bigg] = \frac{\frac{\partial f(x)}{\partial x}g(x) - f(x)\frac{\partial g(x)}{\partial x}}{g(x)^{2}}.
+\end{equation}
+\noindent{Using} this, we can write
+\begin{align}
+	\frac{\partial \pi_{t}(x)}{\partial H_{t}(a)} &= \frac{\partial }{\partial H_{t}(a)}\pi_{t}(x) \nonumber \\
+	&= \frac{\partial }{\partial H_{t}(a)}\Bigg[\frac{e^{H_{t}(x)}}{\sum_{y=1}^{k}e^{H_{t}(y)}}\Bigg] \nonumber \\
+	&= \frac{\frac{\partial e^{H_{t}(x)}}{\partial H_{t}(a)}\sum_{y=1}^{k}e^{H_{t}(y)} - e^{H_{t}(x)}\frac{\partial \sum_{y=1}^{k}e^{H_{t}(y)}}{\partial H_{t}(a)} }{\big(\sum_{y=1}^{k}e^{H_{t}(y)}\big)^{2}} \nonumber \\
+	&= \frac{\mathbbm{1}_{a=x}e^{H_{t}(x)}\sum_{y=1}^{k}e^{H_{t}(y)}-e^{H_{t}(x)}e^{H_{t}(a)}}{\big(\sum_{y=1}^{k}e^{H_{t}(y)}\big)^{2}} \nonumber \\
+	&= \frac{\mathbbm{1}_{a=x}e^{H_{t}(x)}}{\sum_{y=1}^{k}e^{H_{t}(y)}} - \frac{e^{H_{t}(x)}e^{H_{t}(a)}}{\big(\sum_{y=1}^{k}e^{H_{t}(y)}\big)^{2}} \nonumber \\
+	&= \mathbbm{1}_{a=x}\pi_{t}(x) -\pi_{t}(x)\pi_{t}(a) \nonumber \\
+	&= \pi_{t}(x)\big(\mathbbm{1}_{a=x}-\pi_{t}(a)\big). \nonumber
+\end{align} 
+\par \textbf{It can be shown that the expected update of the gradient bandit algorithm is equal to the gradient of expected reward, and thus that the algorithm is an instance of stochastic gradient ascent.} This assures us that the algorithm has robust convergence properties. \textbf{The choice of the baseline does not affect the expected update of the algorithm, but it does affect the variance of the update and thus the rate of convergence}. \uline{Choosing it as the average of the rewards may not be the very best, but it is simple and works well in practice.} 
+\section{Associative Search (Contextual Bandits)}
+\par So far it have been considered only \textcolor{red}{\textit{nonassociative tasks}}, that is, \uline{tasks in which there is no need to associate different actions with different situations}. The learner either tries to find a single best action when the task is stationary, or tries to track the best action as it changes over time when the task is nonstationary. \textbf{However, in a general reinforcement learning task there is more than one situation, and the goal is to learn a policy: a mapping from situations to the actions that are best in those situations.} With the right policy we can usually do much better than we could in the absence of any information distinguishing one bandit task from another. \newline 
+\par  \textcolor{red}{\textit{Associative search task}} involves both \textit{trial-and-error} learning to search for the best actions, and \textit{association} of these actions with the situations in which they are best. Associative search tasks are often now called \textit{contextual bandits} in the literature. Associative search tasks are intermediate between the $k$-armed bandit problem and the full reinforcement learning problem. \uline{If actions are allowed to affect the \textit{next situation} as well as the reward, then we have the full R.L. problem.} \newline
+\noindent \textcolor{red}{\textit{Exercise 2.10}}  Suppose you face a $2$-armed bandit task whose true action values change randomly from time step to time step. Specifically, suppose that, for any time step, the
+true values of actions $1$ and $2$ are respectively $0.1$ and $0.2$ with probability $0.5$ (case A),and $0.9$ and $0.8$ with probability $0.5$ (case B). If we are not able to tell which case you face at any step, what is the best expectation of success you can achieve and how should you behave to achieve it? Now suppose that on each step you are told whether you are
+facing case A or case B (although you still don’t know the true action values). This is an associative search task. What is the best expectation of success you can achieve in this task, and how should you behave to achieve it? \newline
+\par  For the first situation, we cannot hold individual estimates for the case A and B. Therefore, the best approach is to select the action that has best value estimate in combination. In this case, the estimates of both actions the same. Therefore the best expectation of success is $0.5$ and it can be achieved by selecting an action randomly at each step.
+\begin{align}
+	A_1 &= \mathbb{E}\big[R_t|A_t=A_1\big] = 0.5 \times 0.1 + 0.5 * 0.9 = 0.5 \nonumber \\
+	A_2 &= \mathbb{E}\big[R_t|A_t=A_2\big] = 0.5 \times 0.2 + 0.5 * 0.8 = 0.5  \nonumber
+\end{align} 
+\par For the second statement, we can hold independent estimates for the case A and B, thus we can learn the best action for each one treating them as independent bandit problems. The best expectation of success is 0.55 obtained from selecting $A_{2}$ in case A and $A_{1}$ in case B.
+\begin{equation}
+	\nonumber
+	q_{*} = 0.5 \times 0.2 + 0.5 \times 0.9 = 0.55  
+\end{equation}
+\section{Summary}
+\par One well-studied approach to \uline{balancing exploration and exploitation in $k$-armed bandit problems} is to compute a special kind of action value called a \textcolor{red}{\textit{Gittins index}}. In certain important special cases, this computation is tractable and leads directly to optimal solutions, although it does require complete knowledge of the prior distribution of possible problems, which we generally assume is not available. \newline
+\par \uline{The Gittins-index approach} is an instance of \textcolor{red}{\textit{Bayesian methods}}, which assume a known initial distribution over the action values and then update the distribution exactly after each step (assuming that the true action values are stationary).\textbf{ In general, the update computations can be very complex, but for certain special distributions} (called \textcolor{red}{\textit{conjugate priors}}) \textbf{they are easy}. \uline{One possibility is to then select actions at each step according to their posterior probability of being the best action.} This method, sometimes called \textcolor{red}{\textit{posterior sampling}} or \textcolor{red}{\textit{Thompson sampling}}, often performs similarly to the best of the distribution-free methods. \newline
+\par \uline{In the Bayesian setting it is even conceivable to compute the \textit{optimal} balance between exploration and exploitation.} One can compute for any possible action the probability of each possible immediate reward and the resultant posterior distributions over action values. \uline{This evolving distribution becomes the \textit{information state} of the problem.}
