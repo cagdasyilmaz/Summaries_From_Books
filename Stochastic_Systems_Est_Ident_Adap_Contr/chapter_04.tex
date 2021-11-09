@@ -1,0 +1,488 @@
+\chapter{Controlled Markov Chain Model}
+\par{In} the case of complete observations and feedback laws depending only on the current state, then we can call that the state process is a Markov chain.
+\section{An Example} \label{section:an_example}
+\par{The} state takes values in $R^{n}$, but in many situations it is more appropriate to permit the state to take on only a finite number of values. Consider a machine whose condition at time $k$ is described by the state $x_{k}$ which can take the values $1$ or $2$ with the interpretation that $x_{k} = 1$ or $x_{k} = 2$ depending on whether the machine is in an operational or failed condition. For the moment there are no control actions allowed so that the machine behavior is autonomous. Suppose the machine is operational at time $k$, so $x_{k} = 1$, and there is a probability $q > 0$ that it will fail in the next period, so $x_{k+1} = 2$; with probability $1 - q$ it will continue to remain operational, so $x_{k+1} = 1$.  Suppose further that $q$ does not depend upon previous values $x_{k-1}, \dots, x_{0}$. Finally, suppose that a failed machine continues to remain failed, so that $x_{k+1} = 2$ with probability $1$, if $x_{k} = 2$. Then $\{x_{k}, k > 0\}$ is a Markov chain whose transition probabilities are described by the matrix $\bm{P}=\{\bm{P}_{ij}\}$:
+\begin{equation}
+	\label{eqn:transion_probabilities}
+	\bm{P} = \begin{bmatrix}
+		1-q & q \\
+		0 & 1  
+	 	\end{bmatrix}.
+\end{equation}
+\noindent The transition probability matrix $\bm{P}$ has the property that \uline{all its elements are non-negative and the sum of the elements in every row is $1$}. Such a matrix is said to be a \textcolor{red}{\textit{stochastic matrix}}. The Markov property is expressed by
+\begin{equation}
+	\label{eqn:markov_property}
+	\text{\textit{Prob}}\{x_{k+1} = j\,|\,x_{k} = i,x_{k-1},\dots,x_{0}\} = \bm{P}_{ij},\,\,i,j \in \{1,2\}.	
+\end{equation}
+\noindent{\textbf{Control Actions}}:  Let $\bm{u}^{1}_{k}$ denote the intensity of machine use at time $k$.  It takes on values $\bm{u}^{1}_{k}= 0, 1$ or $2$ accordingly as the machine is not used, is in light use, or is in heavy use.  Suppose that the greater the intensity of use, the larger is the likelihood of machine failure. Let $\bm{u}^{2}_{k}$ denote the intensity of machine maintenance effort. Suppose it takes only two values $0$ or $1$, the higher value denoting greater maintenance. The idea is that maintenance reduces the likelihood of machine failure and permits a failed machine to become operational. \newline 
+\par{The} effects of these two control actions, intensity of machine use and maintenance, can be modeled as a controlled transition probability as follows. Let $\bm{u}_{k} \doteq (\bm{u}^{1}_{k}, \bm{u}^{2}_{k})$. Then
+\begin{align}
+	\label{eqn:controlled_transition_probabilities}	
+	&\text{\textit{Prob}}\{x_{k+1} = 2\,|\,x_{k} = 1, x_{k-1},\dots,\bm{u}_{k},\bm{u}_{k-1},\dots \} = q_1(\bm{u}^{1}_{k})- q_2(\bm{u}^{2}_{k}) \nonumber \\
+	&\text{\textit{Prob}}\{x_{k+1} = 1\,|\,x_{k} = 1, x_{k-1},\dots,\bm{u}_{k},\bm{u}_{k-1},\dots \} = 1 - [q_1(\bm{u}^{1}_{k})- q_2(\bm{u}^{2}_{k})] \nonumber \\
+	&\text{\textit{Prob}}\{x_{k+1} = 1\,|\,x_{k} = 2, x_{k-1},\dots,\bm{u}_{k},\bm{u}_{k-1},\dots \} = q_2(\bm{u}^{2}_{k}) \nonumber \\
+	&\text{\textit{Prob}}\{x_{k+1} = 2\,|\,x_{k} = 2, x_{k-1},\dots,\bm{u}_{k},\bm{u}_{k-1},\dots \} = 1 - q_2(\bm{u}^{2}_{k}).
+\end{align}
+\par{These} transition probabilities can be put in matrix form similar to \ref{eqn:transion_probabilities}, except that they will be functions of the control $\bm{u}$:
+\begin{equation}
+	\label{eqn:controlled_transion_probabilities_matrix}
+	\bm{P}(\bm{u^{1}},\bm{u^{2}}) = \begin{bmatrix}
+		1-q_{1}(\bm{u}^{1})+q_{2}(\bm{u}^{2}) & q_{1}(\bm{u}^{1})-q_{2}(\bm{u}^{2}) \\
+		q_{2}(\bm{u}^{2}) & 1-q_{2}(\bm{u}^{2})  
+	\end{bmatrix}.
+\end{equation}
+\par{Equation} \ref{eqn:controlled_transition_probabilities} is illustrated in the state transition diagram below.
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.55\textwidth,keepaspectratio]{Figures/State_Transition_Diagram/state_transition_diagram.pdf}
+	\caption{The state transition diagram of a controlled Markov process.} 
+	\label{fig:state_transition_diagram_of_controlled_state}	
+\end{figure}
+\par{Of} course the values of $q$ are such that $q_{1}(0)<q_{1}(1)<q_{1}(2)$ and $q_{2}(0)<q_{2}(1)$ because a lightly used or better maintained machine is less likely to fail than a heavily used or less well-maintained machine. We also expect that the last two probabilities in \ref{eqn:controlled_transition_probabilities} should not depend on $\bm{u}^{1}_{k}$ because when the machine has failed, it cannot be used. \newline
+\par{Suppose} the state is observed and consider a feedback policy $\{\bm{g}_{0},\bm{g}_{1},\dots\}$ which is time-invariant, that is, $\bm{g}_{k} \equiv \bm{g}$, and let $\bm{u}_{k} = \bm{g}(x_{k})$. This results in the transition probability matrix $\bm{P}^{\bm{g}} = \{\bm{P}^{g}_{ij}\}$ where 
+\begin{equation}
+	\label{eqn:transion_probabilities__with_feedback_policy}
+	\bm{P}^{\bm{g}}_{ij} \doteq \bm{P}_{ij}\big(\bm{g}(i)\big),\,\,i,j \in \{1,2\}.
+\end{equation}
+\par For example, if $\bm{g}(1) = (2, 0)$, i.e the machine is in heavy use and smaller maintenance is required, and $\bm{g}(2) = (0,1)$, the machine is not used and greater maintenance is required. Then
+\begin{equation}
+	\label{eqn:controlled_transion_probabilities_matrix_with_feedback_policy}
+	\bm{P}^{\bm{g}} = \begin{bmatrix}
+		1-q_{1}(2)+q_{2}(0) & q_{1}(2)-q_{2}(0) \\
+		q_{2}(1) & 1-q_{2}(1)  
+	\end{bmatrix}.
+\end{equation}
+\par{The} resulting process $\{x_{k}\}$ is a Markov chain with stationary transition probability $\bm{P}^{\bm{g}}$. The joint probability distribution of $x_{k}$ can be written as the row vector
+\begin{equation}
+	\label{eqn:probability_distribution_of_x_vector}
+	\nonumber
+	\bm{p}_{k} \doteq (\text{\textit{Prob}}\{x_{k}=1\},\text{\textit{Prob}}\{x_{k}=2\}).
+\end{equation}
+\par{By} the Markov property \ref{eqn:controlled_transition_probabilities}
+\begin{equation}
+	\label{eqn:probability_distribution_update}
+	\bm{p}_{k+m} \doteq \bm{p}_{k}[\bm{P}^{\bm{g}}]^{m},\,\,m\geq0,
+\end{equation}
+and, in particular,
+\begin{equation}
+	\label{eqn:probability_distribution_update_II}
+	\bm{p}_{k} \doteq \bm{p}_{0}[\bm{P}^{\bm{g}}]^{k},
+\end{equation}
+\noindent{where} $\bm{p}_{0}$ is the initial distribution of $x_{0}$. \newline
+\par Often, \uline{as $k\rightarrow\infty$, $\bm{p}_{k}$ converges to a probability distribution $\bm{p}=(\bm{p}(1),\bm{p}(2))$ that does not depend on the initial distribution $\bm{p}_{0}$.} We then say that it is an \textcolor{red}{\textit{ergodic}} chain. The limiting probability distribution is called the \textcolor{red}{\textit{steady-state}} or \uline{\textit{equilibrium}} or \uline{\textit{invariant}} distribution. It is the solution of the following linear equations
+\begin{equation}
+	\begin{aligned}
+		\label{eqn:steady_state_transition}
+		&\bm{p} = \bm{p}\bm{P}^{\bm{g}},  \\
+		&\bm{p}(1) + \bm{p}(2) = 1. \\
+	\end{aligned}
+\end{equation}
+\par{Equation} \ref{eqn:steady_state_transition} always has a solution.  In the ergodic case the solution is unique and the limiting distribution $\bm{p}=\big(\bm{p}(1),\bm{p}(2)\big)$ has the following interpretation:
+\begin{equation}
+	\label{eqn:interpretation_of_the_ergodic_chain}
+	\bm{p}(i) = \lim_{n\rightarrow{\infty}}\frac{1}{n}\sum_{k=1}^{n}I(x_{k}=i)\,\,\text{with probability}\,\,1,
+\end{equation}
+\noindent{where} $I$ is the \textcolor{red}{\textit{indicator function}}—i.e., $I(x_{k}=i) = 1$ if $x_{k} = i$, and $I(x_{k}=i) = 0$ if $x_{k} \neq i$. Thus $\bm{p}(1)$  is the average proportion of time that the machine is operational and $\bm{p}(2)$ the average proportion of time it spends in the failed state. \newline
+\par From \ref{eqn:steady_state_transition} it is evident that the steady state probability $\bm{p}$ depends on the feedback law $g$. So by changing the policy $g$, that is, by changing the use and maintenance of the machine, we can alter the number of times it fails. One may then ask the following question: Which policy $\bm{g}$ leads to the best p?
+\section{Finite State Controlled Markov Chains} \label{section:finite_state_controlled_markov_chains}
+\par{The} preceding example generalizes to the case of an arbitrary finite state controlled Markov chain whose state $x_{k}$ takes values in $\{1,\dots,I\}$. The control $\bm{u}_{k}$ takes values in a pre-specified set $\bm{U}$. $\bm{U}$ may be finite or infinite. The transition probabilities are specified by the $I \times I$ matrix valued function on $\bm{U}$,
+\begin{equation}
+	\label{eqn:finite_state_transition_probabilities}
+	\bm{u} \rightarrow \bm{P}(\bm{u}) \doteq \{\bm{P}_{ij}(\bm{u}),\,\,1\leq{i},j\leq{I}\}
+\end{equation}
+\noindent{with} the interpretation that
+\begin{equation}
+	\label{eqn:finite_state_markov_property}
+	\text{\textit{Prob}}\{x_{k+1} = j\,|\,x_{k} = i,x_{k-1},\dots,x_{0},\bm{u}_{k},\dots,\bm{u}_{0}\} = \bm{P}_{ij}(\bm{u}_{k}).	
+\end{equation}
+\par \uline{The matrix $\bm{P}(\bm{u})$ has the property that every element is non-negative, and the sum of the elements in every row is $1$ - i.e., it is a stochastic matrix.} We must also specify the probability distribution of the initial state $x_{0}$. In case the observation $y_{k}\,\cancel{\equiv}\,x_{k}$, one must also specify the observation probability
+\begin{equation}
+	\label{eqn:finite_state_observation_probability}
+	P(y|i) \doteq \text{\textit{Prob}}\{y_{k} = y\,{|}\, x_{k} = i\}.
+\end{equation}
+\section{Complete Observations and Markov Policies} \label{section:complete_observations_and_markov_policies}
+Consider the controlled Markov chain model \ref{eqn:finite_state_transition_probabilities}. Suppose the state is observed, $y_{k} \equiv x_{k}$. Let $\bm{g} = \{\bm{g}_{0},\bm{g}_{1},\dots\}$ be a feedback policy such that $\bm{g}_{k}$ depends only on the current state $x_{k}$ (and not on $x_{k-1}$, $x_{k-2}$, $\dots$). \uline{We call such a $\bm{g}$ a \textcolor{red}{\textit{Markov policy}}}. \newline
+\par Let $\bm{g}$ be a Markov policy, and let $\{x_{k}\}$ be the resulting state process. Denote the probability distribution of $x_{k}$ by the $I$-dimensional row vector
+\begin{equation}
+	\label{eqn:I_dimensional_Markov_Policy}
+	\bm{p}^{\bm{g}}_{k} \doteq (\text{\textit{Prob}}\{x_{k}=1\},\dots,\text{\textit{Prob}}\{x_{k}=I\}),
+\end{equation}
+\noindent{the} superscript $\bm{g}$ emphasizes the dependence on $\bm{g}$. However, in the sequel we drop the superscript since the $\bm{g}$-dependence will be clear from the context. \newline
+\par\noindent\textcolor{red}{\textit{Lemma \thechapter{.}\theLemmaNumber{\stepcounter{LemmaNumber}}}}: When a Markov policy $\bm{g}$ is employed, the resulting state process $\{x_{k}\}$ is a Markov process. Its one-step transition probability at time $k$ is given by the matrix
+\begin{equation}
+	\label{eqn:one_step_transtion_probability}
+	\nonumber
+	\bm{P}^{\bm{g}}_{k} \doteq \{(\bm{P}^{\bm{g}}_{k})_{ij} \doteq \bm{P}_{ij}\big(\bm{g}_{k}(i)\big),\,\,1 \leq i,j \leq I)\},
+\end{equation}
+\noindent{Its} $m$-step transition probability at time $k$ is given by the matrix
+\begin{equation}
+	\label{eqn:m-step_transtion_probability}
+	\nonumber
+	\bm{P}^{\bm{g}}_{k} {\times}{\dots}{\times} \bm{P}^{\bm{g}}_{k+m-1},
+\end{equation}
+so its $ij$-th element is the probability that the state will be $j$ at time $k+m$ given that it is $i$ at time $k$. Hence
+\begin{equation}
+	\label{eqn:m-step_transtion_probability_II}
+	\nonumber
+	\bm{p}_{k+m} = \bm{p}_{k}(\bm{P}^{\bm{g}}_{k} {\times}{\dots}{\times} \bm{P}^{\bm{g}}_{k+m-1}).
+\end{equation}
+In particular,
+\begin{equation}
+	\label{eqn:k-step_transtion_probability}
+	\bm{p}_{k} = \bm{p}_{0}(\bm{P}^{g}_{0} {\times}{\dots}{\times} \bm{P}^{g}_{k-1}),
+\end{equation}
+\noindent{where} $\bm{p}_{0}$ is the probability distribution of the initial state $x_{0}$. \newline
+\par\noindent\textcolor{red}{\textit{Proof}}: The proof is immediate from the Markov property \ref{eqn:finite_state_markov_property}. Since the transition probability matrix $\bm{P}^{\bm{g}}_{k}$ depends on the time $k$, we say that $\{x_{k}\}$ is a Markov chain with nonstationary transition probability.
+\section{The Cost of a Markov Policy} \label{section:the_cost_of_a_markov_policy}
+\par A Markov policy $\bm{g}$ determines the probability distribution of the state process $\{x_{k}\}$ and the control process $\{\bm{u}_{k} = \bm{g}_{k}(x_{k})\}$. Different policies will lead to different probability distributions. \uline{In optimal control problems one is interested in finding the best or optimal policy. To do this one needs to compare different policies. This is done by specifying a \textcolor{red}{\textit{cost function}}.} This is a sequence of real valued functions of the state and control,
+\begin{equation}
+	\label{eqn:cost_function_of_I_states}
+	\nonumber
+	c_{k}(i,\bm{u}),\,\,1 \leq i \leq I,\,\, \bm{u} \in \bm{U},\,\,k \geq 0.
+\end{equation}
+\par{The} interpretation is that $c_{k}(i,\bm{u})$ is the cost to be paid if at time $k$, $x_{k} = i$ and $\bm{u}_{k} = \bm{u}$. Fix a Markov policy $\bm{g}$. The cost incurred by $\bm{g}$ up to the time horizon $N$ is $\sum_{k=0}^{N}c_{k}(x_{k},\bm{u}_{k})$. This is a random variable since $x_{k}$ and $\bm{u}_{k}$ are random. Hence the expected cost is
+\begin{equation}
+	\label{eqn:expected_cost_up_to_time_horizion_N}
+	J(\bm{g}) \doteq \mathbb{E}^{\bm{g}}\left[\sum_{k=0}^{N}c_{k}(x_{k},\bm{u}_{k})\right] = \mathbb{E}^{\bm{g}}\left[\sum_{k=0}^{N}c_{k}\big(x_{k},\bm{g}_{k}(x_{k})\big)\right],
+\end{equation}
+\noindent{here} $\mathbb{E}^{\bm{g}}$ denotes expectation with respect to the probability distribution of $\{x_{k}\}$, $\{\bm{u}_{k}\}$ determined by $\bm{g}$. $J(\bm{g})$ can be readily evaluated in terms of the transition probability matrices $\bm{P}^{\bm{g}}_{k}$ as follows. From \ref{eqn:expected_cost_up_to_time_horizion_N} it can be obtained
+\begin{equation}
+	\begin{aligned}
+		\label{eqn:expected_cost_up_to_time_horizion_N_in_terms_of_P_matrices}
+		J(\bm{g}) &= \sum_{k=0}^{N}\sum_{i=1}^{I}\text{\textit{Prob}}\{x_{k}=i\}c_{k}\big(i,\bm{g}_{k}(i)\big) \\
+		&= \sum_{k=0}^{N} \bm{p}_{k}\,\bm{c}^{\bm{g}}_{k} = \sum_{k=0}^{N} \bm{p}_{0}\,(\bm{P}^{\bm{g}}_{0} \times \, \dots \, \times \bm{P}^{\bm{g}}_{k-1}) \bm{c}^{\bm{g}}_{k}, \\
+	\end{aligned}
+\end{equation}
+\noindent{where} $\bm{c}^{\bm{g}}_{k}$ is the $I$-dimensional column vector
+\begin{equation}
+	\label{eqn:cost_values_with_column_vector_at_time_k}
+	\bm{c}^{\bm{g}}_{k} \doteq \bigg(c_{k}\big(1,\bm{g}_{k}(1)\big),\,\dots,\, c_{k}\big(I,\bm{g}_{k}(I)\big)\bigg)^{T}.
+\end{equation}
+\par{The} last equality in \ref{eqn:expected_cost_up_to_time_horizion_N_in_terms_of_P_matrices} follows from \ref{eqn:k-step_transtion_probability}. Thus the best Markov policy $\bm{g}$ is the one that minimizes $J(\bm{g}) = \sum_{k=0}^{N} \bm{p}_{0}\,(\bm{P}^{\bm{g}}_{0} \times \, \dots \, \times \bm{P}^{g}_{k-1}) \bm{c}^{g}_{k}$. \uline{A \textit{Dynamic Programming} can be an approach for computing the best $\bm{g}$.} Central to dynamic programming is a recursive technique for calculating the cost of a Markov policy $\bm{g}$. Since the technique depends only on the fact that the state process corresponding to $\bm{g}$ is Markov, which is introduced here. For each time $1 \leq k \leq N$, and state $1 \leq i \leq I$, let $V^{\bm{g}}_{k}(i)$ denote the expected cost incurred during $k,\,\dots,\,N$ when $x_{k} = i$.  That is,
+\begin{equation}
+	\label{eqn:expected_cost_incurred_during_k_to_N}
+	V^{\bm{g}}_{k}(i) \doteq \mathbb{E}^{\bm{g}}\left[\sum_{l=k}^{N}c_{l}\big(x_{l},\bm{g}_{l}(x_{l})\big)\, \bigg| \, x_{k} = i \right] .
+\end{equation}
+\par{Observe} that with this notation the total cost \ref{eqn:expected_cost_up_to_time_horizion_N_in_terms_of_P_matrices} is
+\begin{equation}
+	\label{eqn:expected_total_cost}
+	J(\bm{g}) = \sum_{i=1}^{I} (\bm{p}_{0})_{i} \, V^{\bm{g}}_{0}(i).
+\end{equation}
+\par\noindent\textcolor{red}{\textit{Lemma \thechapter{.}\theLemmaNumber{\stepcounter{LemmaNumber}}}}: The functions $V^{\bm{g}}_{k}(i)$ can be calculated by backward recursion,
+\begin{equation}
+	\label{eqn:total_cost_update_backward_recursion}
+	V^{\bm{g}}_{k}(i) = c_{k}\big(i,\bm{g}_{k}(i)\big) + \sum_{j=1}^{I} \big(\bm{P^{\bm{g}}_{k}}\big)_{ij} \, V^{\bm{g}}_{k+1}(j),\,\,0 \leq k < N.
+\end{equation}
+\noindent{starting} with the final condition
+\begin{equation}
+	\label{eqn:total_cost_update_final_condition}
+	V^{\bm{g}}_{N}(i) = c_{N}\big(i,\bm{g}_{N}(i)\big).
+\end{equation}
+\par\noindent\textcolor{red}{\textit{Proof}}: From the definition we immediately get \ref{eqn:total_cost_update_final_condition}. Next
+\begin{align}
+	\label{eqn:prof_of_the_cost_of_markov_policy}	
+	V^{\bm{g}}_{k}(i) &= \mathbb{E}^{\bm{g}}\left[\sum_{l=k}^{N}c_{l}\big(x_{l},\bm{g}_{l}(x_{l})\big)\, \bigg| x_{k} = i \right] \nonumber \\
+	&= c_{k}\big(i,\bm{g}_{k}(i)\big) + \mathbb{E}^{\bm{g}} \left[ \mathbb{E}^{\bm{g}} \bigg[ \sum_{l=k+1}^{N}c_{l}\big(x_{l},\bm{g}_{l}(x_{l})\big)\, \big| \, x_{k+1},\,x_{k} = i \bigg] \, \bigg| \, x_{k} = i \right] \nonumber \\
+	&= c_{k}\big(i,\bm{g}_{k}(i)\big) + \mathbb{E}^{\bm{g}}\big[V_{k+1}^{\bm{g}}(x_{k+1}) \, | \, x_{k} = i \big] \,\,\,\, \text{(by \ref{eqn:finite_state_markov_property})} \nonumber \\
+	&=c_{k}\big(i,\bm{g}_{k}(i)\big) + \sum_{j=1}^{I} V_{k+1}^{\bm{g}}(j) \, \text{\textit{Prob}}\{x_{k+1} = j \,|\, x_{k} = i \}\nonumber
+\end{align}
+\noindent{which} is \ref{eqn:expected_cost_incurred_during_k_to_N} once we recall the definition of $(\bm{P}^{\bm{g}}_{k})_{ij}$.\newline
+\par{The} previous equations can be expressed in a convenient vector notation. Denote the $I$-dimensional column vector
+\begin{equation}
+	\label{eqn:expected_cost_vector_for_all_state_values_at_time_k}
+	V^{\bm{g}}_{k} \doteq \big(V^{\bm{g}}_{k}(1), \, \dots , \, V^{\bm{g}}_{k}(I) \big)^{T}.
+\end{equation}
+\par{Then}, using \ref{eqn:cost_values_with_column_vector_at_time_k}, we can express \ref{eqn:total_cost_update_backward_recursion}, \ref{eqn:total_cost_update_final_condition} and \ref{eqn:expected_total_cost}, respectively, as
+\begin{align}
+	\label{eqn:total_cost_update_backward_recursion_II}	
+	V^{\bm{g}}_{k} &= \bm{c}^{\bm{g}}_{k} + \bm{P}^{\bm{g}}_{k} \, V^{\bm{g}}_{k+1},\,\,0 \leq k < N,\\
+	\label{eqn:total_cost_update_final_condition_II}
+	V^{\bm{g}}_{N} &= \bm{c}^{\bm{g}}_{N},\\
+	\label{eqn:expected_total_cost_II}
+	J(\bm{g}) &= \bm{p}_{0} \, V^{\bm{g}}_{0}.
+\end{align}
+\par{Here}, the time horizon $N$ is finite. Often one is interested in the infinite horizon. This is not an immediate extension, since \uline{if one simply sets $ N = \infty$ in \ref{eqn:expected_cost_up_to_time_horizion_N}, in most cases one gets $J(\bm{g}) = \infty$ for every $\bm{g}$. The notion of best $\bm{g}$ then becomes meaningless.} \textbf{There are two ways to treat the infinite horizon problem.} The first approach is to introduce a discount factor $\beta$, $0 < \beta < 1$, and to consider the expected discounted cost 
+\begin{equation}
+	\label{eqn:total_expected_cost_with_discount_factor}
+	\nonumber
+	J(\bm{g}) = \mathbb{E}^{\bm{g}} \left[ \sum_{k=0}^{\infty} \beta^{k} \, c_{k}(x_{k}, \bm{u}_{k})  \right].
+\end{equation}
+\par\uline{{Observe} that if $c_{k}$ is bounded, then $J(\bm{g})$ will be finite.} Since the cost incurred at time $k$ is weighted by $\beta^{k}$, present costs are more important than future costs. In an economic context, $\beta = (1+r)^{-1}$, where $r>0$ is the interest rate. With this interpretation, $J(\bm{g})$ is the present value of the cost.  From \ref{eqn:expected_cost_up_to_time_horizion_N_in_terms_of_P_matrices} it follows that
+\begin{equation}
+	\nonumber
+	\label{eqn:total_expected_cost_with_discount_factor_II}
+	J(\bm{g}) =  \sum_{k=0}^{\infty} \beta^{k} \, \bm{p}_{0} \, (\bm{P}^{g}_{0} \times \dots \times \bm{P}^{g}_{k-1}) \, \bm{c}^{\bm{g}}_{k} .
+\end{equation}
+\par{Define}
+\begin{equation}
+	\nonumber
+	\label{eqn:expected_cost_with_discount_factor}
+	V^{\bm{g}}_{k}(i) \doteq \mathbb{E}^{\bm{g}}\left[ \sum_{l=k}^{\infty} \beta^{l} \, c_{l}(x_{l}, \bm{g}_{l}(x_{l})) \, \big| \, x_{k} = i \right];
+\end{equation}
+\noindent{then}, using the notation \ref{eqn:cost_values_with_column_vector_at_time_k}, the counterparts of \ref{eqn:total_cost_update_backward_recursion_II} and \ref{eqn:expected_total_cost_II} are
+\begin{align}
+	\label{eqn:total_cost_update_backward_recursion_with_discount_rate}	
+	V^{\bm{g}}_{k} &= \beta^{k} \, \bm{c}^{\bm{g}}_{k} + \bm{P}^{\bm{g}}_{k} \, V^{\bm{g}}_{k+1}, \, \, k \geq 0,\\
+	\label{eqn:expected_total_cost_discount_rate}
+	J(\bm{g}) &= \bm{p}_{0} \, V^{\bm{g}}_{0}.
+\end{align}
+\par However, in the infinite horizon problem, there is no counterpart of the final condition \ref{eqn:total_cost_update_final_condition_II}. The second approach is followed when discounting is inappropriate. A policy is then evaluated according to its average cost per unit time,
+\begin{equation}
+	\label{eqn:average_cost_per_unit_time}
+	J(\bm{g}) =  \lim\limits_{N \rightarrow \infty} \, \frac{1}{N} \, \mathbb{E}^{\bm{g}} \left[ \sum_{k=0}^{N-1} c_{k}\left(x_{k}, \bm{g}_{k}(x_{k}) \right)  \right].
+\end{equation}
+\par{Using} \ref{eqn:expected_cost_up_to_time_horizion_N_in_terms_of_P_matrices} this cost equals
+\begin{equation}
+	\label{eqn:average_cost_per_unit_time_II}
+	J(\bm{g}) =  \lim\limits_{N \rightarrow \infty} \, \frac{1}{N} \, \sum_{k=0}^{N-1} \bm{p}_{0} \, (\bm{P}^{g}_{0} \times \dots \times \bm{P}^{g}_{k-1}) \, \bm{c}^{\bm{g}}_{k}.
+\end{equation}
+\par{From} this expression we see that if $\bm{P}^{g}_{k}$ varies with $k$, then the limit above need not exist. If the transition matrix does not depend on $k$, then the limit always exists. So far, the total cost \ref{eqn:expected_cost_up_to_time_horizion_N} is the sum of the costs incurred in each time period. The next exercise shows that other cost functions can be put into this additive form. \newline
+\noindent\rule[0.0ex]{\linewidth}{1pt}
+\par\noindent\textcolor{red}{\textit{Exercise \thechapter{.}\theExerciseNumber{\stepcounter{ExerciseNumber}}}}: Suppose the cost incurred by a Markov policy $\bm{g} \doteq \{\bm{g}_{0}, \, \dots, \, \bm{g}_{N}\}$ is
+\begin{equation}
+	\label{eqn:expected_cost_of_the_exercise_4_1}
+	J(\bm{g}) \doteq \mathbb{E}^{g} \left[I\left( \max_{0 \leq k \leq N} h(x_{k}) \geq \alpha \right) \right],
+\end{equation}
+\noindent{where} $I$ is the indicator function, and $h$ and $\alpha$ are specified early. [Thus $J(\bm{g})$ is the probability that $h(x_{k})$ exceeds $\alpha$ at some time $k$.] Show that \ref{eqn:expected_cost_of_the_exercise_4_1} can be put into the additive form \ref{eqn:expected_cost_up_to_time_horizion_N}. \newline
+[Hint: Define the new chain $\bm{z}_{k} \doteq (x_{k}, y_{k})$, with $y_{k} \in {0, 1}$. The transition probability of $x_{k}$ is exactly as before, whereas
+\begin{align}
+	\label{eqn:transition_probability_of_exercise_4_1}
+	&\text{\textit{Prob}}\{y_{k+1} = 1 \, | \, y_{k} = 0, \, x_{k}, \, \bm{z}_{k-1}, \, \dots \, \bm{z}_{0}, \, \bm{u}_{k}, \, \dots \, \bm{u}_{0}\} = 
+	\begin{cases}
+		1, & \text{if} \, \, h(x_{k}) \geq \alpha\\
+		0, & \text{if} \, \, h(x_{k}) < \alpha
+	\end{cases} \nonumber \\
+	&\text{\textit{Prob}}\{y_{k+1} = 1 \, | \, y_{k} = 1, \, x_{k}, \, \bm{z}_{k-1}, \, \dots \, \bm{z}_{0}, \, \bm{u}_{k}, \, \dots \, \bm{u}_{0}\} = 1. \nonumber
+\end{align}
+\noindent{Now} let $c_{k}(\bm{z}_{k}, \bm{u}_{k}) = 0$ for $k < N$, and $c_{N}(x, y, \bm{u}) = y$.] \newline
+\noindent\rule[0.0ex]{\linewidth}{1pt}
+\section{Stationary Markov Policy} \label{section:stationary_markov_policy}
+A Markov policy $\bm{g} = {\bm{g}_{0}, \bm{g}_{1}, \dots}$ is \textcolor{red}{\textit{stationary}} or \textcolor{red}{\textit{time-invariant}} if $\bm{g}_{0} = \bm{g}_{1} =\dots = \bm{g}$, with a slight abuse of notation. Let $g$ be stationary; then the transition probability matrix is stationary, $P^{g}_{k} = P^{g}$. Suppose the cost functions are also time-invariant, $c_{k} = c$. Fix a discount $0 < \beta < 1$. Then 
+\begin{align}
+	%\label{eqn:stationary_Markov_policy_expected_cost_with_discount_factor}
+	V^{\bm{g}}_{k}(i) =& \mathbb{E}^{\bm{g}}\left[ \sum_{l=k}^{\infty} \beta^{l} \, c_{l}(x_{l}, \bm{g}_{l}(x_{l})) \, \big| \, x_{k} = i \right] \nonumber \\
+	=&\beta^{k} \, \mathbb{E}^{\bm{g}}\left[ \sum_{l=0}^{\infty} \beta^{l} \, c_{l}(x_{l}, \bm{g}_{l}(x_{l})) \, \big| \, x_{0} = i \right] \nonumber \\
+	=&\beta^{k} \, V^{g}_{0}(i) .\nonumber
+\end{align}
+\par{Using} this in \ref{eqn:total_cost_update_backward_recursion_with_discount_rate} gives
+\begin{equation}
+	\label{eqn:stationary_Markov_policy_expected_cost_with_discount_factor}
+	\nonumber
+	\beta^{k}\,V^{g}_{0} = \beta^{k} \, \bm{c}^{\bm{g}} + \beta^{k+1} \, \bm{P}^{\bm{g}} \, V^{g}_{0},
+\end{equation}
+\noindent{or}, in matrix notation,
+\begin{equation}
+	\label{eqn:stationary_Markov_policy_expected_cost_with_discount_factor_II}
+	\nonumber
+	\left[ \bm{I} - \beta \, \bm{P}^{\bm{g}} \right] \, V^{g}_{0} = \bm{c}^{g}.
+\end{equation}
+\par{This} is a set of $I$ linear equations in the $I$ unknowns $V^{g}_{0}(i)$, for $i = 1, \, 2, \, \dots, \, I$. $[ \bm{I} - \beta \, \bm{P}^{\bm{g}}]$ is invertible so that this system of linear equations has a unique solution $V^{g}_{0}$. Next the average cost \ref{eqn:average_cost_per_unit_time} and \ref{eqn:average_cost_per_unit_time_II} are studied when $\bm{g}$ and $\bm{c}$ are stationary. The next three lemmas are stated without proof. \newline
+\par\noindent\textcolor{red}{\textit{Lemma \thechapter{.}\theLemmaNumber{\stepcounter{LemmaNumber}}}}: If $\bm{P}$ is a transition probability matrix, then the \textcolor{red}{\textit{Cesaro limit}}
+\begin{equation}
+	\label{eqn:Cesaro_limit}
+	\nonumber
+	\lim\limits_{N \rightarrow \infty} \, \frac{1}{N} \, \sum_{k = 0}^{N - 1} \bm{P}^{k} \doteq \bm{\Pi},
+\end{equation}
+\noindent{always} exists. The matrix $\bm{\Pi}$ is a stochastic matrix and it satisfies the equation
+\begin{equation}
+	\label{eqn:Cesaro_limit_II}
+	\nonumber
+	\bm{\Pi} = \bm{\Pi} \, \bm{P}.
+\end{equation}
+\par{Thus} for stationary $g$ and time-invariant cost, the average cost per unit time \ref{eqn:average_cost_per_unit_time} and \ref{eqn:average_cost_per_unit_time_II}, is
+\begin{equation}
+	\label{eqn:average_cost_per_unit_time_stationary_Markov_policy}
+	J(\bm{g}) =  \lim\limits_{N \rightarrow \infty} \, \frac{1}{N} \, \mathbb{E}^{\bm{g}} \left[ \sum_{k=0}^{N-1} c\left(x_{k}, \bm{g}_{k}(x_{k}) \right)  \right] = \bm{p}_{0} \, \bm{\Pi} \, \bm{c}^{g}.
+\end{equation}
+\par{Let} $\bm{\pi}$ be one of the rows of $\bm{\Pi}$. Then
+\begin{equation}
+	\label{eqn:Cesaro_limit_III}
+	\nonumber
+	\bm{\pi} = \bm{\pi} \, \bm{P}.
+\end{equation}
+\par{Moreover} since $\bm{\Pi}$ is a stochastic matrix, $\bm{\pi}$ can be regarded as a probability distribution. This has the interpretation that \uline{if the Markov chain has initial probability distribution given by $\bm{\pi}$, then the probability distribution of the state remains at $\bm{\pi}$ for all time. Thus it is said to be an \textcolor{red}{\textit{invariant probability distribution}}.} Clearly if the rows of $\bm{\Pi}$ are not all the same, then there is more than one invariant probability distribution. \newline
+\noindent\rule[0.0ex]{\linewidth}{1pt}
+\par\noindent\textcolor{red}{\textit{Exercise \thechapter{.}\theExerciseNumber{\stepcounter{ExerciseNumber}}}}: Give an example such that $J(\bm{g})$ in \ref{eqn:average_cost_per_unit_time_stationary_Markov_policy} depends on $\bm{p}_{0}$.\newline
+[Hint: Choose $\bm{P} = \bm{I}$. Note that there are several invariant probability distributions.] \newline
+\noindent\rule[0.0ex]{\linewidth}{1pt}
+\par{In} many cases \ref{eqn:average_cost_per_unit_time_stationary_Markov_policy} is independent of the initial distribution $\bm{p}_{0}$. An $I \times I$ transition probability matrix $\bm{P}$ is \textcolor{red}{\textit{reducible}} or \textcolor{red}{\textit{decomposable}} if there is a renumbering of the states $\{1, \,, \dots, \, I\}$ for which $\bm{P}$  takes the form
+\begin{equation}
+	\label{eqn:decomposed_matrix_form}
+	\nonumber
+	\bm{P} = \begin{bmatrix}
+		\bm{P}_{1} & \bm{P}_{2} \\
+		0 & \bm{P}_{3}  
+	\end{bmatrix},
+\end{equation}
+\noindent\uline{where $\bm{P}_{1}$, and $\bm{P}_{3}$ are square matrices. This means that it is not possible to make a transition from a state indexing a row of $\bm{P}_{3}$ to a state corresponding to $\bm{P}_{1}$.} Hence if the initial state happens to lie in the set of states indexing rows of $\bm{P}_{3}$, then the Markov chain stays forever in the same set, with transition probabilities given by $\bm{P}_{3}$. Thus there is a Markov chain with this smaller state space. A transition matrix $\bm{P}$ which cannot be put in above-mentioned form by any renumbering of states is called \textcolor{red}{\textit{irreducible}} or \textcolor{red}{\textit{indecomposable}}. \newline
+\par\noindent\textcolor{red}{\textit{Lemma \thechapter{.}\theLemmaNumber{\stepcounter{LemmaNumber}}}}: If $\bm{P}$ is an irreducible transition probability matrix, then there is a unique row vector $\bm{\pi}$ such that
+\begin{equation}
+	\label{eqn:irreducible_transition}
+	\nonumber
+	\bm{\pi} \, \bm{P} = \bm{\pi}, \,\, \sum_{i=1}^{I} \bm{\pi}_{i} = 1 .
+\end{equation}
+\par{Moreover} $\bm{\pi}_{i} > 0$, all $i$. Finally, the matrix $\bm{\Pi}$ in \ref{eqn:average_cost_per_unit_time_stationary_Markov_policy} has all rows equal to $\bm{\pi}$. [$\bm{\pi}$ is called the steady state or invariant probability distribution of the Markov chain $\{x_{k}\}$.] \newline
+\noindent\rule[0.0ex]{\linewidth}{1pt}
+\par\noindent\textcolor{red}{\textit{Exercise \thechapter{.}\theExerciseNumber{\stepcounter{ExerciseNumber}}}}: Construct an example of a Markov chain that is reducible and that has several different invariant probability distributions. Is every component $\bm{\pi}_{i} > 0$ for every invariant probability distribution $\bm{\pi}$? [Hint: See previous exercise.] \newline
+\noindent\rule[0.0ex]{\linewidth}{1pt}
+\par\noindent\textcolor{red}{\textit{Exercise \thechapter{.}\theExerciseNumber{\stepcounter{ExerciseNumber}}}}: Show that $\bm{P}$ is irreducible if and only if for every $i$ and $j$ there is a sequence of states $i \doteq i_{0}, \, i_{1}, \, \dots, \, i_{k-1}, \, i_{k} \doteq j$ such that $\bm{P}{i_{l} | i_{l+1}} > 0$ for $l = 0, \, 1, \, \dots, k-1$. Hence there is a path in the state space from every state to every other state that can be traversed by the Markov chain with positive probability. [Hint: If not, then group all the states which cannot be reached from a certain state into one set. Identify these states with the matrix $\bm{P}_{1}$.] \newline
+\par{Thus} if $\bm{P}^{\bm{g}}$ is irreducible, then
+\begin{equation}
+	\label{eqn:total_cost_of_irreducible_transition}
+	J(\bm{g}) = \bm{p}_{0} \, \bm{\Pi} \, \bm{c}^{\bm{g}} = \bm{\pi} \, \bm{c}^{\bm{g}} 
+\end{equation}
+\noindent{since} all the rows of $\bm{\Pi}$ are identical. The cost $J(\bm{g})$ is therefore independent of the initial distribution. A probability transition matrix $\bm{P}$ is said to be periodic if there is a renumbering of the states for which $\bm{P}$ takes the form
+\begin{equation}
+	\label{eqn:periodic_transition}
+	\nonumber
+	\bm{P} = \begin{bmatrix}
+		\bm{0} & \bm{P}_{1} & \bm{0} & . & . & \bm{0} \\
+		\bm{0} & \bm{0} & \bm{P}_{2} & . & . & \bm{0} \\
+		. & . & . & . & . & .\\
+		. & . & . & . & . & .\\
+		\bm{0} & \bm{0} & \bm{0} & . & . &  \bm{P}_{n-1} \\
+		\bm{P}_{n} & \bm{0} & \bm{0} & . & . &  \bm{0}
+	\end{bmatrix}.
+\end{equation}
+\par{This} means that one can partition the states into disjoint subsets $I_{1}, \, \dots, \, I_{n}$ such that from states in $I_{m-1}$ transitions are possible only to states in $I_{m}$. If $\bm{P}$ cannot be put into this form it is said to be \textcolor{red}{\textit{aperiodic}}.\newline
+\noindent\rule[0.0ex]{\linewidth}{1pt}
+\par\noindent\textcolor{red}{\textit{Lemma \thechapter{.}\theLemmaNumber{\stepcounter{LemmaNumber}}}}: If $\bm{P}$ is irreducible and aperiodic, then
+\begin{equation}
+	\label{eqn:irreducible_and_aperiodic_transition}
+	\nonumber
+	\lim\limits_{k \rightarrow \infty} \bm{P}^{k} = \bm{\Pi},
+\end{equation}
+\noindent{where} $\bm{\Pi}$ is the matrix with all rows equal to $\bm{\pi}$. \newline
+\noindent\rule[0.0ex]{\linewidth}{1pt}
+\par\noindent\textcolor{red}{\textit{Exercise \thechapter{.}\theExerciseNumber{\stepcounter{ExerciseNumber}}}}: Show that if $\bm{P}$ is periodic, then $\bm{P}_{k}$ cannot converge. \newline 
+\par{There} is an interesting case of a cost over the infinite time horizon which requires neither a discount factor nor consideration of the average cost per unit time.
+\newline
+\noindent\rule[0.0ex]{\linewidth}{1pt}
+\par\noindent\textcolor{red}{\textit{Exercise \thechapter{.}\theExerciseNumber{\stepcounter{ExerciseNumber}}}}: Let $F \subset \{1, \,, \dots, \, I\}$  be a subset of states, and for a stationary Markov policy $\bm{g}$ let $\tau$ be the first time that $x_{k}$ enters $F$. That is
+\begin{equation}
+	\label{eqn:tau_definition_of_exercise}
+	\nonumber
+	\tau = 
+		\begin{cases}
+			\min \, \{k \geq 0 \, | \, x_{k} \in F \}\\
+			\infty, \,\, \text{if} \,\, x_{k} \notin F \,\, \text{for all} \,\, k.
+		\end{cases}
+\end{equation}
+\par{Suppose}
+\begin{equation}
+	\label{eqn:expectation_of_tau}
+	\nonumber
+	\mathbb{E}\left\{ \tau \, | \, x_{0} = i \right\} < \infty \,\, \text{for all} \,\, i.
+\end{equation}
+\par{Let} $c(i,\bm{u})$ be a stationary cost function, and define
+\begin{equation}
+	\label{eqn:expectation_cost_of_the_tau_exercise}
+	\nonumber
+	V^{\bm{g}}(i) \doteq \mathbb{E}^{\bm{g}}\left[ \sum_{k=0}^{\tau - 1} \beta^{l} \, c(x_{k}, \bm{g}(x_{k})) \, \big| \, x_{0} = i \right].
+\end{equation}
+\par{Show} that $V^{\bm{g}}(i) < \infty$ and 
+\begin{equation}
+	\label{eqn:expectation_cost_update_of_the_tau_exercise}
+	\nonumber
+	V^{\bm{g}} = \bm{c}^{\bm{g}} + \bm{R}^{\bm{g}} \, V^{\bm{g}} ,
+\end{equation}
+\noindent{where} $(\bm{R}^{\bm{g}})_{ij} \doteq (\bm{R}^{\bm{g}})_{ij}$ if $i \notin F$, and $(\bm{R}^{\bm{g}})_{ij} \doteq 0$ if $i \in F$.  [The random time $\tau$ is called a stopping time, and problems of this type are called \textcolor{red}{\textit{stopping time problems}}.]
+\noindent\rule[0.0ex]{\linewidth}{1pt}
+\section{Infinite State Markov Chains} \label{section:infinite_state_markov_chains}
+\par{The} discussion in Sections \ref{section:finite_state_controlled_markov_chains}, \ref{section:complete_observations_and_markov_policies}, and \ref{section:the_cost_of_a_markov_policy} carries over with obvious changes to the case of controlled Markov chains whose state $x_{k}$ takes values in the infinite set $\{1, \, 2, \, 3, \, \dots\}$. The control takes values in $\bm{U}$, and for $\bm{u} \in \bm{U}$, the transition probabilities are specified by an infinite dimensional matrix
+\begin{equation}
+	\label{eqn:transition_probability_with_input}
+	\nonumber
+	\bm{P}(\bm{u}) \doteq \{\bm{P}_{ij}(\bm{u}), \,\, 1 \leq i, j < \infty\}.	
+\end{equation}
+with the same interpretation as \ref{eqn:finite_state_markov_property} \newline
+\par{A} Markov policy $\bm{g}$ is defined exactly as before, and the corresponding one-step and $m$-step transition probability matrix at time $k$ are
+\begin{align}
+	&\text{one-step transtion probability} &:& \,\, \bm{P}^{\bm{g}}_{k} \doteq \left\{ \left((\bm{P}^{\bm{g}})_{ij}\right) \doteq \bm{P}_{ij}\left( \bm{g}_{k}(i)\right), 1 \leq i, \, j < \infty  \right\}, \nonumber \\
+	&m-\text{step transtion probability} &:& \,\, \bm{P}^{\bm{g}}_{k} \times \dots \times \bm{P}^{\bm{g}}_{k+m-1}. \nonumber 
+\end{align}
+\par{The} probability distribution of $x_{k}$ is now the infinite row vector
+\begin{equation}
+	\label{eqn:probability_distribution_of_x_k_as_row_vector}
+	\nonumber
+	\bm{p}^{\bm{g}}_{k} = \bm{p}_{k} \doteq \left( \text{\textit{Prob}}\{x_{k}=1\}, \, \text{\textit{Prob}}\{x_{k}=2\}, \, \dots \right),	
+\end{equation}
+\noindent{and} by the Markov property,
+\begin{equation}
+	\label{eqn:markov_property_of_infinite_state_chains}
+	\nonumber
+	\bm{p}_{k+m} = \bm{p}_{k} \, (\bm{P}^{\bm{g}}_{k} \times \dots \times \bm{P}^{\bm{g}}_{k+m-1}), \,\, \text{and} \,\, \bm{p}_{k} = \bm{p}_{0} \, (\bm{P}^{\bm{g}}_{0} \times \dots \times \bm{P}^{\bm{g}}_{k-1})
+\end{equation}
+\par{For} cost functions $c_{k}(i,\bm{u}), \, 1 \leq i < \infty, \, \bm{u} \in \bm{U}$, the expected cost over a finite horizon is given by \ref{eqn:expected_cost_up_to_time_horizion_N}. If $V^{\bm{g}}_{k}$ is the infinite-dimensional column vector with components $V^{\bm{g}}_{k}(i)$ defined by \ref{eqn:expected_total_cost}, then the recursion analogous to \ref{eqn:total_cost_update_backward_recursion} and \ref{eqn:total_cost_update_final_condition} is
+\begin{align}
+	\label{eqn:expected_cost_of_the_finite_time_horizon_of_infinite_state}	
+	&V^{\bm{g}}_{k}(i) =c_{k}\big(i,\bm{g}_{k}(i)\big) + \sum_{j=1}^{\infty} (\bm{P}^{\bm
+	g}_{k})_{ij} \, V_{k+1}^{\bm{g}}(j), \, 0 \leq k < N, \nonumber \\
+	&V^{\bm{g}}_{k}(i) = c_{N}(i,\bm{g}_{N}(i)). \nonumber
+\end{align}
+\par{Similarly}, the discounted cost over the infinite horizon is given by the recursion \ref{eqn:total_cost_update_backward_recursion_with_discount_rate}. If the policy $\bm{g}$ and the cost function $c(i, \bm{u})$ are time-invariant, then the infinite-dimensional vector $V^{\bm{g}}_{0}$ satisfies the linear equation
+\begin{equation}
+	\label{eqn:stationary_Markov_policy_expected_cost_with_discount_factor_III}
+	\left[ \bm{I} - \beta \, \bm{P}^{\bm{g}} \right] \, V^{g}_{0} = \bm{c}^{g}.
+\end{equation}
+\noindent\rule[0.0ex]{\linewidth}{1pt}
+\par\noindent\textcolor{red}{\textit{Exercise \thechapter{.}\theExerciseNumber{\stepcounter{ExerciseNumber}}}}: Let $\bm{l}_{\infty}$  be the set of all infinite-dimensional column vectors $\bm{x} = (\bm{x}_{1}, \, \bm{x}_{1}, \dots)^{T}$. For $\bm{x} \in \bm{l}_{\infty}$, define its norm $\norm{\bm{x}} \doteq \sup \{|\bm{x}_{1}|, \, |\bm{x}_{2}|, \dots\}$. Show that  $\norm{\bm{P}^{\bm{g}}} \doteq \sup_{\bm{x} \neq \bm{0}} \frac{|\bm{P}^{\bm{g}}\,\bm{x}|}{\bm{x}} = 1$. Now show that the linear map defined on $\bm{l}_{\infty}$ by $\bm{x} \rightarrow \left[ \bm{I} - \beta \, \bm{P}^{\bm{g}} \right]\bm{x}$ is invertible; in fact, 
+\begin{equation}
+	\label{eqn:linear_map_on_infinite_dimensional_vector}
+	\nonumber
+	\left[ \bm{I} - \beta \, \bm{P}^{\bm{g}} \right]^{-1} \bm{x} = \sum_{k=1}^{\infty} \left[ \beta \, \bm{P}^{\bm{g}} \right]^{k} \, \bm{x}.
+\end{equation}
+\par{In} particular, if $\bm{c}^{g} \in \bm{l}_{\infty}$ - i.e.,  if $\sup_{i}|\bm{c}^{g}(i)|$ is finite - then \ref{eqn:stationary_Markov_policy_expected_cost_with_discount_factor_III} has a unique solution. \newline
+\noindent\rule[0.0ex]{\linewidth}{1pt}
+\par{Similarly}, we can define the average cost per unit time as
+\begin{equation}
+	\begin{aligned}
+		\label{eqn:average_cost_per_unit_time_stationary_Markov_policy_II}
+		J(\bm{g}) &\doteq  \lim\limits_{N \rightarrow \infty} \, \frac{1}{N} \, \mathbb{E}^{\bm{g}} \left[ \sum_{k=0}^{N} c\left(x_{k}, \bm{g}_{k}(x_{k}) \right)  \right] \\
+		&= \bm{p}_{0} \left[ \lim\limits_{N \rightarrow \infty} \, \frac{1}{N} \, \sum_{k = 0}^{N} (\bm{P}^{g})^{k} \right]\bm{c}^{g}.
+	\end{aligned}
+\end{equation}
+\par{The} only significant difference between the finite and infinite state cases arises at this point, because Lemmas (4.3), (4.4) and (4.5) do not hold in the infinite case. \newline
+\noindent\rule[0.0ex]{\linewidth}{1pt}
+\par\noindent\textcolor{red}{\textit{Exercise \thechapter{.}\theExerciseNumber{\stepcounter{ExerciseNumber}}}}: Consider a Markov chain with the following state transition diagram. 
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.55\textwidth,keepaspectratio]{Figures/Infinite_State_Transition_Diagram/infinite_state_transition_diagram.pdf}
+	\caption{The state transition diagram of a infinite Markov process.} 
+	\label{fig:state_transition_diagram_of_infinite_state}	
+\end{figure}
+\par{This} gives the transition probability matrix
+\begin{equation}
+	\label{eqn:transion_probabilities_of_a_infinite_state_Markov_chain}
+	\nonumber
+	\bm{P} = \begin{bmatrix}
+		0 & 1 & . & . & .\\
+		\epsilon & 0 & 1-\epsilon & . & . \\ 
+		. & \epsilon & 0 & 1-\epsilon & . \\
+		. & . & \epsilon & 0 & . \\
+		. & . & . & \epsilon & . \\
+		. & . & . & . & .
+	\end{bmatrix}.
+\end{equation}
+\par{Show} that $\bm{P}$ is irreducible and periodic for $\epsilon > 0$. Show that there exists a steady-state distribution $\bm{\pi}$ with
+\begin{equation}
+	\label{eqn:irreducible_transition_II}
+	\nonumber
+	\bm{\pi} \, \bm{P} = \bm{\pi}, \,\, \text{and} \,\, \sum_{i=0}^{\infty} \bm{\pi}(i) = 1,
+\end{equation} 
+\noindent{if} and only if $\epsilon = \frac{1}{2}$. [Hint: First show that a positive solution to $\bm{\pi} \, \bm{P} = \bm{\pi}$ must be proportional to $\bm{\eta} = (\bm{\eta}_{1}, \, \bm{\eta}_{2}, \, \dots)$ with  
+\begin{equation}
+	\label{eqn:eta_definition}
+	\nonumber
+	\bm{\eta}(1) = 1, \,\, \text{and} \,\, \bm{\eta}(i) = \frac{(1-\epsilon)^{i-2}}{{\epsilon}^{i-1}}, \,\, i > 1.
+\end{equation} 
+\par{Now} show that $\sum_{i}^{} \bm{\pi}(i) = 1$ is possible if and only if $\sum_{i}^{} \bm{\eta}(i) < \infty$ if and only if $\epsilon > \frac{1}{2}$.] If, however, the Cesaro limit in \ref{eqn:average_cost_per_unit_time_stationary_Markov_policy_II} exists (as it always does in the finite case),
+\begin{equation}	
+	\label{eqn:casero_limit_for_infinite_state_chain}
+	\nonumber
+	 \lim\limits_{N \rightarrow \infty} \, \frac{1}{N} \, \sum_{k = 0}^{N} (\bm{P}^{g})^{k} = \bm{\Pi},
+\end{equation}
+\noindent{then} $J(\bm{g}) = \bm{p}_{0} \, \bm{\Pi} \, \bm{c}^{\bm{g}}$.  \uline{If, furthermore, the chain is ergodic so that all rows of $\bm{\Pi}$ are equal to the steady state distribution $\bm{\pi}$, then the average cost is independent of the initial distribution, $J(\bm{g}) = \bm{\pi} \, \bm{c}^{\bm{g}}$.} \newline
+\noindent\rule[0.0ex]{\linewidth}{1pt}
+\section{Continuous Time Markov Chains} \label{section:continuous_time_Markov_chains}
+\par{The} discrete time example of Section \ref{section:an_example} also makes sense if the transition of the machine state can occur at any continuous time $t$.
